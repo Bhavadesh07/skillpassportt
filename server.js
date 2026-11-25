@@ -1,8 +1,9 @@
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 import express from 'express';
 import cors from 'cors';
-import { settings, BASE_DIR } from './server/config.js';
+import { settings } from './server/config.js';
 import { seedDatabase } from './server/store.js';
 import { hashPassword } from './server/auth.js';
 
@@ -12,6 +13,9 @@ import opportunityRoutes from './server/routes/opportunityRoutes.js';
 import recruiterRoutes from './server/routes/recruiterRoutes.js';
 import adminRoutes from './server/routes/adminRoutes.js';
 import notificationRoutes from './server/routes/notificationRoutes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Seed initial data on boot
 seedDatabase(hashPassword);
@@ -42,10 +46,11 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Serve static frontend files at /static (matching index.html paths)
-const frontendDir = path.join(BASE_DIR, 'frontend');
-if (fs.existsSync(frontendDir)) {
-  app.use('/static', express.static(frontendDir));
+// Serve static frontend files from public/static (Vercel CDN also serves public/** natively)
+const publicDir = path.join(__dirname, 'public');
+const staticDir = path.join(publicDir, 'static');
+if (fs.existsSync(staticDir)) {
+  app.use('/static', express.static(staticDir));
 }
 
 // Handle multer file size or upload errors cleanly
@@ -59,7 +64,7 @@ app.use((err, req, res, next) => {
   next();
 });
 
-// SPA fallback - serve index.html for non-API routes
+// SPA fallback - serve public/index.html for non-API routes
 app.get('*', (req, res) => {
   if (
     req.path.startsWith('/api/') ||
@@ -68,14 +73,14 @@ app.get('*', (req, res) => {
   ) {
     return res.status(404).json({ detail: 'Not Found' });
   }
-  const indexFile = path.join(frontendDir, 'index.html');
+  const indexFile = path.join(__dirname, 'public', 'index.html');
   if (fs.existsSync(indexFile)) {
     return res.sendFile(indexFile);
   }
   return res.status(404).json({ detail: 'Frontend index.html not found.' });
 });
 
-if (!process.env.VERCEL) {
+if (!process.env.VERCEL && !process.env.NOW_REGION) {
   app.listen(settings.PORT, settings.HOST, () => {
     console.log(`[Skill Passport] Server running at http://${settings.HOST}:${settings.PORT}`);
   });
