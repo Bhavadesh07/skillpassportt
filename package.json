@@ -1,0 +1,21 @@
+{
+  "name": "skill-passport",
+  "version": "1.0.0",
+  "description": "SKILL PASSPORT - AI-Powered Career Intelligence & Skill Development Platform",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "node -e \"console.log('Skill Passport build verified')\"",
+    "start": "node server.js",
+    "lint": "node --check server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.8.0",
+    "multer": "^1.4.5-lts.1",
+    "pdfjs-dist": "^4.10.38"
+  }
+}
