@@ -1,0 +1,6 @@
+storage/
+.env
+.env.local
+Dockerfile
+.git
+node_modules

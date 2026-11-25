@@ -75,6 +75,10 @@ app.get('*', (req, res) => {
   return res.status(404).json({ detail: 'Frontend index.html not found.' });
 });
 
-app.listen(settings.PORT, settings.HOST, () => {
-  console.log(`[Skill Passport] Server running at http://${settings.HOST}:${settings.PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(settings.PORT, settings.HOST, () => {
+    console.log(`[Skill Passport] Server running at http://${settings.HOST}:${settings.PORT}`);
+  });
+}
+
+export default app;

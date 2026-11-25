@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -27,6 +28,11 @@ function loadEnvFile() {
 
 loadEnvFile();
 
+const isVercel = Boolean(process.env.VERCEL);
+const defaultStorageDir = isVercel
+  ? path.join(os.tmpdir(), 'skill-passport', 'resumes')
+  : path.resolve(BASE_DIR, process.env.STORAGE_DIR || 'storage/resumes');
+
 export const settings = {
   PROJECT_NAME: 'SKILL PASSPORT',
   VERSION: '1.0.0',
@@ -40,11 +46,15 @@ export const settings = {
   AI_MODEL: process.env.AI_MODEL || 'gemini-2.5-flash',
   AI_BASE_URL: process.env.AI_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta',
   STORAGE_PROVIDER: process.env.STORAGE_PROVIDER || 'local',
-  STORAGE_DIR: path.resolve(BASE_DIR, process.env.STORAGE_DIR || 'storage/resumes'),
+  STORAGE_DIR: defaultStorageDir,
   MAX_FILE_SIZE_MB: 10,
   ALLOWED_EXTENSIONS: new Set(['.pdf', '.docx']),
   HOST: process.env.HOST || '0.0.0.0',
   PORT: parseInt(process.env.PORT || '3000', 10),
 };
 
-fs.mkdirSync(settings.STORAGE_DIR, { recursive: true });
+try {
+  fs.mkdirSync(settings.STORAGE_DIR, { recursive: true });
+} catch (err) {
+  console.warn('[Skill Passport] Could not create storage directory:', err?.message || err);
+}

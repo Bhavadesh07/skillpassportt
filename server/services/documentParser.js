@@ -1,6 +1,7 @@
 import path from 'path';
 import mammoth from 'mammoth';
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
+import 'pdfjs-dist/legacy/build/pdf.worker.mjs';
 
 export class DocumentParseError extends Error {
   constructor(message) {
